@@ -127,3 +127,7 @@ build.bat      →  KIDHelper.exe   (build never overwrites keywords\)
 - [x] Read Weapon from ESP/ESM/ESL
 - [ ] Armor, Ammo and the other Form Types (currently locked to Weapon)
 - [ ] Automatic load order from `plugins.txt` / MO2 profile
+
+## License
+
+[MIT](LICENSE) © 2026 Pethzero
