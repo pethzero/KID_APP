@@ -1,0 +1,357 @@
+<Window x:Class="KidHelper.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="KID Helper — Keyword Item Distributor" Icon="app.ico" Width="1440" Height="900" MinWidth="1160" MinHeight="700"
+        WindowStartupLocation="CenterScreen" AllowDrop="True"
+        Background="{StaticResource BgBrush}" Foreground="{StaticResource TextBrush}"
+        FontFamily="{StaticResource UiFont}" FontSize="13"
+        UseLayoutRounding="True" TextOptions.TextFormattingMode="Display">
+
+  <Grid Margin="20,16,20,14">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+
+    <!-- ================= Header ================= -->
+    <DockPanel Margin="2,0,2,16">
+      <Border DockPanel.Dock="Left" Width="42" Height="42" CornerRadius="11" Margin="0,0,14,0">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#F2CE7A" Offset="0"/>
+            <GradientStop Color="#C8913A" Offset="1"/>
+          </LinearGradientBrush>
+        </Border.Background>
+        <TextBlock Text="K" FontSize="23" FontWeight="Black" Foreground="{StaticResource AccentTextBrush}"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      </Border>
+      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+        <Button Content="เปิด _KID.ini…" Click="OpenIni_Click" ToolTip="โหลด keyword header (;0x800 Name) จากไฟล์ _KID.ini ที่มีอยู่"/>
+      </StackPanel>
+      <StackPanel VerticalAlignment="Center">
+        <StackPanel Orientation="Horizontal">
+          <TextBlock Text="KID Helper" FontSize="21" FontWeight="SemiBold"/>
+          <Border Style="{StaticResource Pill}" Margin="10,2,0,0" VerticalAlignment="Center">
+            <TextBlock Text="Keyword Item Distributor" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource AccentBrush}"/>
+          </Border>
+        </StackPanel>
+        <TextBlock Margin="0,4,0,0" FontFamily="{StaticResource MonoFont}" FontSize="12" Foreground="{StaticResource FaintBrush}">
+          <Run Text="Keyword = "/><Run Text="formID~esp" Foreground="{StaticResource AccentBrush}"/><Run Text=" (OR) "/><Run Text="keywordEditorID" Foreground="{StaticResource AccentBrush}"/><Run Text=" | "/><Run Text="type" Foreground="{StaticResource TextBrush}"/><Run Text=" | "/><Run Text="strings,formIDs" Foreground="{StaticResource OkBrush}"/><Run Text=" (OR) "/><Run Text="editorIDs" Foreground="{StaticResource OkBrush}"/><Run Text=" | "/><Run Text="traits" Foreground="{StaticResource MutedBrush}"/><Run Text=" | "/><Run Text="chance" Foreground="{StaticResource MutedBrush}"/>
+        </TextBlock>
+      </StackPanel>
+    </DockPanel>
+
+    <!-- ================= Body ================= -->
+    <Grid Grid.Row="1">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="340"/>
+        <ColumnDefinition Width="14"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+
+      <!-- Left: Keywords -->
+      <Border Style="{StaticResource Card}">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+
+          <DockPanel Margin="0,0,0,12">
+            <Border DockPanel.Dock="Right" Style="{StaticResource Pill}">
+              <TextBlock x:Name="KwCountText" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource AccentBrush}" Text="0 / 0"/>
+            </Border>
+            <TextBlock Text="①  KEYWORDS" Style="{StaticResource SectionLabel}"/>
+          </DockPanel>
+
+          <StackPanel Grid.Row="1">
+            <DockPanel Margin="0,0,0,5">
+              <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                <Button Content="↻" Style="{StaticResource GhostButton}" Click="ReloadPresets_Click" ToolTip="โหลดไฟล์ keywords\*.txt ใหม่"/>
+                <Button Content="📁" Style="{StaticResource GhostButton}" Click="OpenPresetFolder_Click" ToolTip="เปิดโฟลเดอร์ keywords"/>
+              </StackPanel>
+              <TextBlock Text="Keyword file  (keywords\*.txt)" Style="{StaticResource FieldLabel}" Margin="2,0,0,0" VerticalAlignment="Bottom"/>
+            </DockPanel>
+            <ComboBox x:Name="PresetBox"/>
+          </StackPanel>
+
+          <StackPanel Grid.Row="2" Margin="0,12,0,0">
+            <TextBlock Text="Keyword plugin" Style="{StaticResource FieldLabel}"/>
+            <TextBox x:Name="KwPluginBox" Tag=".esm / .esp / .esl ที่มี keyword"/>
+          </StackPanel>
+
+          <TextBox x:Name="SearchBox" Grid.Row="3" Margin="0,14,0,8" Tag="🔍  ค้นหา keyword…"/>
+
+          <Grid Grid.Row="4">
+            <ListBox x:Name="KeywordList" SelectionMode="Multiple" Background="Transparent" BorderThickness="0"
+                     ItemContainerStyle="{StaticResource KeywordItemStyle}"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     VirtualizingPanel.IsVirtualizing="False"/>
+
+            <!-- edit list overlay -->
+            <Border x:Name="EditPanel" Visibility="Collapsed" Background="{StaticResource SurfaceBrush}">
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Style="{StaticResource FieldLabel}" TextWrapping="Wrap"
+                           Text="1 บรรทัด / 1 keyword  ·  0xID [TAB] ชื่อ  หรือ  EditorID"/>
+                <TextBox x:Name="KwListBox" Grid.Row="1" Style="{StaticResource CodeBox}"/>
+                <Grid Grid.Row="2" Margin="0,8,0,0">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                  </Grid.ColumnDefinitions>
+                  <Button Content="ยกเลิก" Click="EditCancel_Click" Margin="0,0,4,0"/>
+                  <Button Grid.Column="1" Content="💾 บันทึก .txt" Click="EditSaveFile_Click" Margin="4,0,4,0" ToolTip="บันทึกเป็นไฟล์ใน keywords\"/>
+                  <Button Grid.Column="2" Content="✓  ใช้" Style="{StaticResource AccentButton}" Click="EditApply_Click" Margin="4,0,0,0"/>
+                </Grid>
+              </Grid>
+            </Border>
+          </Grid>
+
+          <UniformGrid x:Name="KwButtons" Grid.Row="5" Columns="3" Margin="0,10,0,0">
+            <Button Content="เลือกทั้งหมด" Click="SelectAll_Click" Margin="0,0,4,0"/>
+            <Button Content="ล้าง" Click="SelectNone_Click" Margin="4,0,4,0"/>
+            <Button Content="✎  แก้ list" Click="EditList_Click" Margin="4,0,0,0"/>
+          </UniformGrid>
+        </Grid>
+      </Border>
+
+      <!-- Right -->
+      <Grid Grid.Column="2">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="12"/>
+          <RowDefinition Height="3*"/>
+          <RowDefinition Height="12"/>
+          <RowDefinition Height="2*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Settings -->
+        <Border Style="{StaticResource Card}">
+          <StackPanel>
+            <TextBlock Text="②  SETTINGS" Style="{StaticResource SectionLabel}" Margin="0,0,0,12"/>
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="180"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="170"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="100"/>
+              </Grid.ColumnDefinitions>
+              <StackPanel>
+                <TextBlock Text="Form Type  (ตอนนี้: Weapon)" Style="{StaticResource FieldLabel}"/>
+                <ComboBox x:Name="TypeBox"/>
+              </StackPanel>
+              <StackPanel Grid.Column="2">
+                <TextBlock Text="Default plugin  (ใช้กับบรรทัดที่พิมพ์เองแต่ไม่มีชื่อ plugin)" Style="{StaticResource FieldLabel}"/>
+                <TextBox x:Name="DefPluginBox"/>
+              </StackPanel>
+              <StackPanel Grid.Column="4">
+                <TextBlock Text="Traits  (optional)" Style="{StaticResource FieldLabel}"/>
+                <TextBox x:Name="TraitsBox"/>
+              </StackPanel>
+              <StackPanel Grid.Column="6">
+                <TextBlock Text="Chance %" Style="{StaticResource FieldLabel}"/>
+                <TextBox x:Name="ChanceBox"/>
+              </StackPanel>
+            </Grid>
+            <WrapPanel Margin="0,14,0,0">
+              <CheckBox x:Name="ForceEslBox" Style="{StaticResource Switch}" Content="Force ESL (ESL-flagged .esp)"
+                        ToolTip="ใช้ 3 หลักท้าย แม้ไฟล์จะเป็น .esp  (ใช้กับบรรทัดที่พิมพ์เอง — ไฟล์ที่เปิดจาก ESP ตรวจ flag ให้อัตโนมัติ)"/>
+              <CheckBox x:Name="MergeBox" Style="{StaticResource Switch}" Content="รวมเป็นบรรทัดเดียว (comma)"/>
+              <CheckBox x:Name="CommentsBox" Style="{StaticResource Switch}" Content="ใส่ comment" IsChecked="True"/>
+              <CheckBox x:Name="HeaderBox" Style="{StaticResource Switch}" Content="ใส่ keyword header (;0x800 …)"/>
+            </WrapPanel>
+          </StackPanel>
+        </Border>
+
+        <!-- Items + Preview -->
+        <Grid Grid.Row="2">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="12"/>
+            <ColumnDefinition Width="2*"/>
+          </Grid.ColumnDefinitions>
+
+          <Border Style="{StaticResource Card}">
+            <DockPanel>
+              <DockPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+                <Border DockPanel.Dock="Right" Background="{StaticResource Surface2Brush}" CornerRadius="8" Padding="3">
+                  <StackPanel Orientation="Horizontal">
+                    <RadioButton x:Name="ModeEsp" GroupName="mode" Style="{StaticResource Segment}" IsChecked="True">
+                      <TextBlock x:Name="ModeEspText" Text="📂  จาก ESP"/>
+                    </RadioButton>
+                    <RadioButton x:Name="ModeManual" GroupName="mode" Style="{StaticResource Segment}">
+                      <TextBlock x:Name="ModeManualText" Text="✎  พิมพ์เอง"/>
+                    </RadioButton>
+                  </StackPanel>
+                </Border>
+                <TextBlock Text="③  ITEMS" Style="{StaticResource SectionLabel}"/>
+              </DockPanel>
+
+              <Grid>
+                <!-- ESP browser -->
+                <DockPanel x:Name="EspPanel">
+                  <DockPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+                    <Button DockPanel.Dock="Left" Content="📂  เปิด ESP / ESM / ESL…" Style="{StaticResource AccentButton}" Click="OpenEsp_Click"/>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center"
+                                ToolTip="เลข load order ที่ xEdit แสดงหน้า [..] ชื่อไฟล์ — ใช้แสดง ID ให้ตรงกับ xEdit เท่านั้น ไม่มีผลกับ output">
+                      <TextBlock Text="Load order" Foreground="{StaticResource MutedBrush}" FontSize="12" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                      <TextBox x:Name="LoIndexBox" Width="56" Text="00" HorizontalContentAlignment="Center" FontFamily="{StaticResource MonoFont}"/>
+                    </StackPanel>
+                    <StackPanel Margin="12,0" VerticalAlignment="Center">
+                      <TextBlock x:Name="EspNameText" Text="ยังไม่ได้เปิดไฟล์  —  หรือลากไฟล์ .esp มาวางที่หน้าต่างนี้"
+                                 FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                      <TextBlock x:Name="EspInfoText" FontSize="11" Foreground="{StaticResource FaintBrush}" TextTrimming="CharacterEllipsis" Margin="0,2,0,0"/>
+                    </StackPanel>
+                  </DockPanel>
+
+                  <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*"/>
+                      <ColumnDefinition Width="10"/>
+                      <ColumnDefinition Width="220"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="WeaponSearchBox" Tag="🔍  ค้นหา EditorID / ชื่อ / keyword / ID…"/>
+                    <ComboBox x:Name="WeaponTypeBox" Grid.Column="2"/>
+                  </Grid>
+
+                  <DockPanel DockPanel.Dock="Bottom" Margin="0,8,0,0">
+                    <TextBlock x:Name="WeaponCountText" DockPanel.Dock="Right" VerticalAlignment="Center"
+                               Foreground="{StaticResource MutedBrush}" FontSize="12"/>
+                    <StackPanel Orientation="Horizontal">
+                      <Button Content="เลือกที่แสดงทั้งหมด" Click="WeaponSelectAll_Click" Margin="0,0,8,0"/>
+                      <Button Content="ล้าง" Click="WeaponSelectNone_Click"/>
+                    </StackPanel>
+                  </DockPanel>
+
+                  <Grid>
+                    <ListBox x:Name="WeaponList" SelectionMode="Multiple" Background="Transparent" BorderThickness="0"
+                             ItemContainerStyle="{StaticResource WeaponItemStyle}"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             VirtualizingPanel.IsVirtualizing="False"/>
+                    <Border x:Name="EspEmpty" BorderBrush="{StaticResource LineBrush}" BorderThickness="1.5" CornerRadius="10"
+                            Background="#181920">
+                      <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock Text="⇩" FontSize="34" HorizontalAlignment="Center" Foreground="{StaticResource FaintBrush}"/>
+                        <TextBlock Text="ลากไฟล์ .esp / .esm / .esl มาวางที่นี่" HorizontalAlignment="Center" Foreground="{StaticResource MutedBrush}" Margin="0,6,0,0"/>
+                        <TextBlock Text="จะแสดงรายการ Weapon ทั้งหมดในไฟล์ พร้อม ID แบบ xEdit" HorizontalAlignment="Center"
+                                   Foreground="{StaticResource FaintBrush}" FontSize="12" Margin="0,4,0,0"/>
+                      </StackPanel>
+                    </Border>
+                  </Grid>
+                </DockPanel>
+
+                <!-- Manual -->
+                <TextBox x:Name="InputBox" Style="{StaticResource CodeBox}" Visibility="Collapsed"
+                         Tag="plugin.esp + FormID  /  EditorID  /  0xID~plugin.esp   —  ทีละบรรทัด"/>
+              </Grid>
+            </DockPanel>
+          </Border>
+
+          <Border Grid.Column="2" Style="{StaticResource Card}">
+            <DockPanel>
+              <DockPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                  <Border Style="{StaticResource Pill}" Background="#1E3328" Margin="0,0,6,0">
+                    <TextBlock x:Name="OkCountText" Text="0 OK" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource OkBrush}"/>
+                  </Border>
+                  <Border x:Name="ErrPill" Style="{StaticResource Pill}" Background="{StaticResource ErrSoftBrush}">
+                    <TextBlock x:Name="ErrCountText" Text="0 ERROR" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource ErrBrush}"/>
+                  </Border>
+                </StackPanel>
+                <TextBlock Text="PREVIEW" Style="{StaticResource SectionLabel}"/>
+              </DockPanel>
+              <Grid>
+                <TextBlock x:Name="PreviewEmpty" Text="ติ๊ก weapon หรือพิมพ์ item เพื่อดูผล" Foreground="{StaticResource FaintBrush}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                  <ItemsControl x:Name="PreviewList">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <Border x:Name="Row" Padding="10,7" Margin="0,0,6,5" CornerRadius="7" Background="#23252F">
+                          <Grid>
+                            <Grid.ColumnDefinitions>
+                              <ColumnDefinition Width="Auto"/>
+                              <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Ellipse x:Name="Dot" Width="8" Height="8" Fill="{StaticResource OkBrush}" VerticalAlignment="Top" Margin="0,6,10,0"/>
+                            <StackPanel Grid.Column="1">
+                              <TextBlock Text="{Binding Input}" FontFamily="{StaticResource MonoFont}" FontSize="12"
+                                         Foreground="{StaticResource MutedBrush}" TextTrimming="CharacterEllipsis"/>
+                              <WrapPanel Margin="0,3,0,0">
+                                <TextBlock Text="→  " Foreground="{StaticResource FaintBrush}"/>
+                                <TextBlock x:Name="Out" Text="{Binding Filter}" FontFamily="{StaticResource MonoFont}"
+                                           FontWeight="SemiBold" Foreground="{StaticResource AccentBrush}" Margin="0,0,12,0"/>
+                                <TextBlock x:Name="Note" Text="{Binding Note}" FontSize="11" Foreground="{StaticResource FaintBrush}" VerticalAlignment="Center"/>
+                              </WrapPanel>
+                            </StackPanel>
+                          </Grid>
+                        </Border>
+                        <DataTemplate.Triggers>
+                          <DataTrigger Binding="{Binding Ok}" Value="False">
+                            <Setter TargetName="Dot" Property="Fill" Value="{StaticResource ErrBrush}"/>
+                            <Setter TargetName="Note" Property="Foreground" Value="{StaticResource ErrBrush}"/>
+                            <Setter TargetName="Row" Property="Background" Value="{StaticResource ErrSoftBrush}"/>
+                          </DataTrigger>
+                        </DataTemplate.Triggers>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </ScrollViewer>
+              </Grid>
+            </DockPanel>
+          </Border>
+        </Grid>
+
+        <!-- Output -->
+        <Border Grid.Row="4" Style="{StaticResource Card}">
+          <DockPanel>
+            <DockPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+              <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                <Button Content="➕  Append ลงไฟล์…" Click="Append_Click" Margin="0,0,8,0" ToolTip="ต่อท้ายไฟล์ _KID.ini ที่มีอยู่"/>
+                <Button Content="💾  Save as…" Click="Save_Click" Margin="0,0,8,0"/>
+                <Button Content="⧉  Copy" Style="{StaticResource AccentButton}" Click="Copy_Click" MinWidth="96"/>
+              </StackPanel>
+              <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="④  OUTPUT" Style="{StaticResource SectionLabel}"/>
+                <Border Style="{StaticResource Pill}" Margin="10,0,0,0">
+                  <TextBlock x:Name="LineCountText" Text="_KID.ini" FontSize="11" Foreground="{StaticResource AccentBrush}"/>
+                </Border>
+              </StackPanel>
+            </DockPanel>
+            <TextBox x:Name="OutputBox" Style="{StaticResource CodeBox}" IsReadOnly="True" IsReadOnlyCaretVisible="True"/>
+          </DockPanel>
+        </Border>
+      </Grid>
+    </Grid>
+
+    <!-- ================= Status ================= -->
+    <DockPanel Grid.Row="2" Margin="4,10,4,0">
+      <TextBlock DockPanel.Dock="Right" Foreground="{StaticResource FaintBrush}" FontSize="11"
+                 Text="Ctrl+O = เปิด ESP   ·   Ctrl+Shift+C = Copy   ·   Ctrl+S = Save"/>
+      <TextBlock x:Name="StatusText" Foreground="{StaticResource MutedBrush}" FontSize="12" TextTrimming="CharacterEllipsis"/>
+    </DockPanel>
+
+    <!-- ================= Toast ================= -->
+    <Border x:Name="Toast" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,24"
+            Background="{StaticResource AccentBrush}" CornerRadius="20" Padding="18,9" Opacity="0" IsHitTestVisible="False">
+      <Border.Effect>
+        <DropShadowEffect BlurRadius="24" ShadowDepth="4" Opacity="0.5" Color="Black"/>
+      </Border.Effect>
+      <TextBlock x:Name="ToastText" Foreground="{StaticResource AccentTextBrush}" FontWeight="SemiBold" Text="Copied!"/>
+    </Border>
+  </Grid>
+</Window>

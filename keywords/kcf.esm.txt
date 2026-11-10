@@ -1,0 +1,20 @@
+# KID_APP keyword file  —  ดูรูปแบบใน README.md
+plugin = kcf.esm
+type = Weapon
+
+0x800 - SpikeWorkaround
+0x801 - WeapTypeSpear
+0x802 - WeapTypeJavelin
+0x803 - WeapTypePike
+0x804 - WeapTypeHalberd
+0x805 - WeapTypeRapier
+0x806 - WeapTypeQuarterstaff
+0x807 - WeapTypeClaw
+0x808 - WeapTypeScythe
+0x809 - WeapTypeWhip
+0x80A - WeapTypeKatana
+0x80B - WeapTypeGun
+0x80C - WeapTypeTwinblade
+0x80D - WeapTypeCurvedSword
+0x80E - WeapTypeCurvedGreatsword
+0x80F - ArmorShieldLarge

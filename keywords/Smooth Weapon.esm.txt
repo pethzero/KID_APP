@@ -1,0 +1,29 @@
+# KID_APP keyword file  —  ดูรูปแบบใน README.md
+# บรรทัดแรกที่เป็นชื่อไฟล์ .esm/.esp/.esl = plugin ที่มี keyword
+Smooth Weapon.esm
+
+;0x800	Weap TypeRapier
+;0x801	Weap TypePike
+;0x803	Weap TypeHalberd
+;0x804	Weap TypeQtrStaff
+;0x805	Weap TypeClaw
+;0x806	Weap TypeScythe
+;0x807	Weap TypeKatana
+;0x809	Weap TypeWhip
+;0x80A	Weap TypeSpear
+;0x80B	Weap TypeJavelin
+;0x80C	Weap TypeTdagger
+;0x80D	Weap TypeLance
+;0x80E	Weap TypeArrow
+;0x810	Weap TypeGun
+;0x815	Weap TypeUW
+;0x824	GiantGreatSword
+;0x82A	Weap TypePistol
+;0x82B	Weap TypeRifle
+;0x82C	Weap TypeMinigun
+;0x82D	Weap TypeLargeShield
+;0x82E	GiantBattleAxe
+;0x82F	GiantBattleHammer
+;0x830	GiantKatana
+;0x831	Delia
+;0x832	Lynn

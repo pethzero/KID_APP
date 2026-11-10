@@ -1,0 +1,13 @@
+# KID_APP keyword file  —  keyword ของเกมหลัก ใช้ EditorID ได้เลย (ไม่ต้องมี FormID)
+plugin = Skyrim.esm
+name = Skyrim.esm (vanilla EditorIDs)
+
+WeapTypeSword
+WeapTypeGreatsword
+WeapTypeDagger
+WeapTypeWarAxe
+WeapTypeBattleaxe
+WeapTypeMace
+WeapTypeWarhammer
+WeapTypeBow
+WeapTypeStaff
